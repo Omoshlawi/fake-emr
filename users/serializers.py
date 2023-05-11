@@ -93,6 +93,13 @@ class PatientSerializer(serializers.HyperlinkedModelSerializer):
             'url',
             'patient_number',
             'date_of_birth',
+            'first_name',
+            'last_name',
+            'email',
+            'address',
+            'occupation',
+            'gender',
+            'phone_number',
             'marital_status',
             'county_of_residence',
             'triads',
@@ -103,7 +110,6 @@ class PatientSerializer(serializers.HyperlinkedModelSerializer):
         )
         extra_kwargs = {
             'url': {'view_name': 'patients-detail'},
-            'patient_number': {'read_only': True},
             'marital_status': {'view_name': 'status-detail'}
         }
 
