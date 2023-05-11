@@ -1,9 +1,8 @@
-from django.contrib import admin
-
 # Register your models here.
 
 from django.contrib import admin
 
+from medication.admin import PatientHivMedicationInline, AppointMentInline
 from .models import PatientNextOfKeen, Patient, Triad
 
 
@@ -22,7 +21,9 @@ class PatientAdmin(admin.ModelAdmin):
     list_display = ('patient_number', 'base_clinic', 'created_at')
     inlines = [
         PatientNextOfKeenInline,
-        PatientTriadInline
+        PatientTriadInline,
+        PatientHivMedicationInline,
+        AppointMentInline
     ]
 
 

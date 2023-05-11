@@ -24,7 +24,7 @@ class HIVLabTest(models.Model):
     viral_load = models.PositiveIntegerField()
 
     def __str__(self):
-        return f"{self.patient} lab HIV test"
+        return f"{self.appointment.patient} lab HIV test"
 
     class Meta:
         ordering = ['-appointment__created_at']
