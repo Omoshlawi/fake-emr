@@ -23,6 +23,8 @@ class ApiRootView(APIView):
             "hiv test": reverse.reverse_lazy('tests-list', request=request),
             "facilities_url": reverse.reverse_lazy('facilities-list', request=request),
             "facility types": reverse.reverse_lazy('types-list', request=request),
+            "hiv regimens types": reverse.reverse_lazy('regimens-list', request=request),
+            "patient hiv regimens prescription": reverse.reverse_lazy('hiv-prescription-list', request=request),
         })
 
 

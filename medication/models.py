@@ -12,7 +12,7 @@ class AppointMent(models.Model):
     updated_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.doctor} appointment to {self.patient}"
+        return f"{self.patient.patient_number} {self.type} appointment"
 
     class Meta:
         ordering = ['-created_at']
@@ -28,3 +28,34 @@ class HIVLabTest(models.Model):
 
     class Meta:
         ordering = ['-appointment__created_at']
+
+
+class ARTRegimen(models.Model):
+    regimen_line = models.CharField(max_length=50, unique=True)
+    regimen = models.CharField(max_length=50, unique=True)
+    created_at = models.DateTimeField(auto_now=True)
+    updated_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.regimen
+
+    class Meta:
+        ordering = ['-created_at']
+
+
+class PatientHivMedication(models.Model):
+    """
+    HIV prescription
+    """
+    patient = models.ForeignKey('users.Patient', related_name='medications', on_delete=models.CASCADE)
+    regimen = models.ForeignKey(ARTRegimen, related_name='medications', on_delete=models.CASCADE)
+    is_current = models.BooleanField(default=False)
+    doctor = models.ForeignKey("auth.User", related_name='medications', on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now=True)
+    updated_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.patient} {self.regimen}"
+
+    class Meta:
+        ordering = ['-created_at']
