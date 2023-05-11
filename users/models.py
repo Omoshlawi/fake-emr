@@ -33,6 +33,9 @@ class Patient(models.Model):
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
 
+    class Meta:
+        ordering = ['-created_at']
+
 
 class Triad(models.Model):
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='triads')

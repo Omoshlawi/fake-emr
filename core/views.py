@@ -20,6 +20,7 @@ class ApiRootView(APIView):
             "marital_status": reverse.reverse_lazy('status-list', request=request),
             "appointment_types": reverse.reverse_lazy('appointment-types-list', request=request),
             "appointments": reverse.reverse_lazy('appointments-list', request=request),
+            "hiv test": reverse.reverse_lazy('tests-list', request=request),
             "facilities_url": reverse.reverse_lazy('facilities-list', request=request),
             "facility types": reverse.reverse_lazy('types-list', request=request),
         })

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from medication.models import AppointMent
+from medication.models import AppointMent, HIVLabTest
 
 
 class AppointMentSerializer(serializers.HyperlinkedModelSerializer):
@@ -12,4 +12,14 @@ class AppointMentSerializer(serializers.HyperlinkedModelSerializer):
             'patient': {'view_name': 'patients-detail'},
             'type': {'view_name': 'appointment-types-detail'},
             'doctor': {'view_name': 'users-detail'},
+        }
+
+
+class HIVLabTestSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = HIVLabTest
+        fields = ('url', 'appointment', 'cd4_count', 'viral_load')
+        extra_kwargs = {
+            'url': {'view_name': 'tests-detail'},
+            'appointment': {'view_name': 'appointments-detail'},
         }
