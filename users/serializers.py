@@ -3,7 +3,7 @@ from rest_framework import serializers
 from rest_framework.reverse import reverse
 from rest_framework_nested import serializers as nested_serializer
 from core.models import HealthFacility
-from core.serializers import HealthFacilitySerializer
+from core.serializers import HealthFacilitySerializer, MaritalStatusSerializer
 from users.models import PatientNextOfKeen, Patient, Triad
 
 
@@ -33,11 +33,11 @@ class PatientNextOfKeenSerializer(serializers.HyperlinkedModelSerializer):
 
 class PatientSerializer(serializers.HyperlinkedModelSerializer):
     base_clinic = serializers.HyperlinkedRelatedField(
-        view_name='core:clinic-detail', queryset=HealthFacility.objects.all()
+        view_name='facilities-detail', queryset=HealthFacility.objects.all()
     )
     next_of_keen = PatientNextOfKeenSerializer(many=True, read_only=True)
     triads = nested_serializer.NestedHyperlinkedIdentityField(
-        many=True, view_name='patients:triad-detail',
+        many=True, view_name='triads-detail',
         read_only=True, parent_lookup_kwargs={'patient_pk': 'patient__pk'}
     )
 
@@ -48,7 +48,7 @@ class PatientSerializer(serializers.HyperlinkedModelSerializer):
             'next_of_keen': {
                 'count': len(nok),
                 'url': reverse(
-                    viewname='patients:next-of-keen-list',
+                    viewname='next-of-keen-list',
                     args=[instance.id],
                     request=self.context.get('request')
                 ),
@@ -67,13 +67,21 @@ class PatientSerializer(serializers.HyperlinkedModelSerializer):
             'triads': {
                 'count': len(triad_list),
                 'url': reverse(
-                    viewname='patients:triad-list',
+                    viewname='triads-list',
                     args=[instance.id],
                     request=self.context.get('request')
                 ),
                 'url_list': triad_list
             }
         }
+        marital_status = _dict.pop("marital_status")
+        marital_status_obj = {
+            'marital_status': MaritalStatusSerializer(
+                instance=instance.marital_status,
+                context=self.context
+            ).data if instance.marital_status else None
+        }
+        _dict.update(marital_status_obj)
         _dict.update(triads_obj)
         _dict.update(nok_obj)
         _dict.update(base_clinic_obj)
@@ -83,18 +91,20 @@ class PatientSerializer(serializers.HyperlinkedModelSerializer):
         model = Patient
         fields = (
             'url',
+            'patient_number',
+            'date_of_birth',
+            'marital_status',
+            'county_of_residence',
             'triads',
-            'patient_number', 'next_of_keen',
+            'patient_number',
+            'next_of_keen',
             'base_clinic',
-            # 'redemptions',
-            'enrollments',
-            'loyalty_points',
             'created_at', 'updated_at'
         )
         extra_kwargs = {
-            'url': {'view_name': 'patients:patient-detail'},
+            'url': {'view_name': 'patients-detail'},
             'patient_number': {'read_only': True},
-            # 'base_clinic': {'view_name': 'core:clinic-detail'}
+            'marital_status': {'view_name': 'status-detail'}
         }
 
 

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from core.models import HealthFacility, FacilityType
+from core.models import HealthFacility, FacilityType, MaritalStatus
 
 
 class HealthFacilitySerializer(serializers.HyperlinkedModelSerializer):
@@ -19,4 +19,13 @@ class FacilityTypeSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('url', 'level', 'name', 'description')
         extra_kwargs = {
             'url': {'view_name': "types-detail"}
+        }
+
+
+class MaritalStatusSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = MaritalStatus
+        fields = ('url', 'status', 'description', 'is_active', 'created_at')
+        extra_kwargs = {
+            'url': {'view_name': 'status-detail'}
         }
