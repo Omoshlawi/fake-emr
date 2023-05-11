@@ -19,7 +19,7 @@ class AppointMent(models.Model):
 
 
 class HIVLabTest(models.Model):
-    appointment = models.ForeignKey(AppointMent, related_name='test', on_delete=models.CASCADE)
+    appointment = models.ForeignKey(AppointMent, related_name='tests', on_delete=models.CASCADE)
     cd4_count = models.PositiveIntegerField()
     viral_load = models.PositiveIntegerField()
 
@@ -47,7 +47,7 @@ class PatientHivMedication(models.Model):
     """
     HIV prescription
     """
-    patient = models.ForeignKey('users.Patient', related_name='medications', on_delete=models.CASCADE)
+    patient = models.ForeignKey('users.Patient', related_name='prescriptions', on_delete=models.CASCADE)
     regimen = models.ForeignKey(ARTRegimen, related_name='medications', on_delete=models.CASCADE)
     is_current = models.BooleanField(default=False)
     doctor = models.ForeignKey("auth.User", related_name='medications', on_delete=models.CASCADE)

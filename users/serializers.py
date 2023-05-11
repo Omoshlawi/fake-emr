@@ -4,6 +4,7 @@ from rest_framework.reverse import reverse
 from rest_framework_nested import serializers as nested_serializer
 from core.models import HealthFacility
 from core.serializers import HealthFacilitySerializer, MaritalStatusSerializer
+from medication.serializers import AppointMentSerializer, PatientHivMedicationSerializer
 from users.models import PatientNextOfKeen, Patient, Triad
 
 
@@ -40,6 +41,8 @@ class PatientSerializer(serializers.HyperlinkedModelSerializer):
         many=True, view_name='triads-detail',
         read_only=True, parent_lookup_kwargs={'patient_pk': 'patient__pk'}
     )
+    appointments = AppointMentSerializer(many=True, read_only=True)
+    prescriptions = PatientHivMedicationSerializer(many=True, read_only=True)
 
     def to_representation(self, instance):
         _dict = super().to_representation(instance)
@@ -90,22 +93,11 @@ class PatientSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Patient
         fields = (
-            'url',
-            'patient_number',
-            'date_of_birth',
-            'first_name',
-            'last_name',
-            'email',
-            'address',
-            'occupation',
-            'gender',
-            'phone_number',
-            'marital_status',
-            'county_of_residence',
-            'triads',
-            'patient_number',
-            'next_of_keen',
-            'base_clinic',
+            'url', 'patient_number', 'date_of_birth', 'first_name',
+            'last_name', 'email', 'address', 'occupation', 'gender',
+            'phone_number', 'marital_status', 'county_of_residence',
+            'triads', 'patient_number', 'next_of_keen', 'base_clinic',
+            'appointments', 'prescriptions',
             'created_at', 'updated_at'
         )
         extra_kwargs = {
