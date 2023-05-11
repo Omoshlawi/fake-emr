@@ -34,7 +34,7 @@ class MaritalStatusSerializer(serializers.HyperlinkedModelSerializer):
 class AppointMentTypeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = AppointMentType
-        fields = ('url', 'appointment_code', 'type', 'description', 'created_at')
+        fields = ('url', 'code', 'type', 'description', 'created_at')
         extra_kwargs = {
             'url': {'view_name': 'appointment-types-detail'}
         }
