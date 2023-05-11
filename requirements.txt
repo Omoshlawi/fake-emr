@@ -1,0 +1,13 @@
+asgiref
+Django
+django-cors-headers
+django-filter
+django-phonenumber-field
+django-taggit
+djangorestframework
+Markdown
+phonenumbers
+Pillow
+pytz
+sqlparse
+tzdata
