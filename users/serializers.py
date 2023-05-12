@@ -19,7 +19,7 @@ class PatientNextOfKeenSerializer(serializers.HyperlinkedModelSerializer):
 
     def get_url(self, instance):
         return reverse(
-            viewname='patients:next-of-keen-detail',
+            viewname='next-of-keen-detail',
             args=[instance.patient.id, instance.id],
             request=self.context.get('request')
         )
@@ -28,7 +28,7 @@ class PatientNextOfKeenSerializer(serializers.HyperlinkedModelSerializer):
         model = PatientNextOfKeen
         fields = ('url', 'full_name', 'address', 'phone_number', 'created_at', 'updated_at')
         extra_kwargs = {
-            'url': {'view_name': 'patients:next-of-keen-detail'},
+            'url': {'view_name': 'next-of-keen-detail'},
         }
 
 
@@ -93,11 +93,11 @@ class PatientSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Patient
         fields = (
-            'url', 'patient_number', 'date_of_birth', 'first_name',
+            'url', 'id', 'patient_number', 'date_of_birth', 'first_name',
             'last_name', 'email', 'address', 'occupation', 'gender',
             'phone_number', 'marital_status', 'county_of_residence',
             'triads', 'patient_number', 'next_of_keen', 'base_clinic',
-            'appointments', 'prescriptions',
+            'appointments', 'prescriptions', "national_id",
             'created_at', 'updated_at'
         )
         extra_kwargs = {
@@ -119,7 +119,7 @@ class TriadSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Triad
         fields = (
-            'url',
+            'url', 'id',
             'patient', 'weight', 'height',
             'temperature', 'heart_rate',
             'blood_pressure', 'created_at'

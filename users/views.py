@@ -17,6 +17,8 @@ class UsersViewSet(viewsets.ModelViewSet):
 class PatientViewSet(viewsets.ModelViewSet):
     queryset = Patient.objects.all()
     serializer_class = PatientSerializer
+    search_fields = ("patient_number", "national_id", "phone_number")
+    filterset_fields = ("patient_number", "national_id")
 
 
 class PatientNextOfKeenViewSet(viewsets.ModelViewSet):

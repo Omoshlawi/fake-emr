@@ -6,17 +6,24 @@ from core.models import HealthFacility, FacilityType, MaritalStatus, AppointMent
 class HealthFacilitySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = HealthFacility
-        fields = ('url', 'identification_code', 'name', 'type', 'longitude', 'latitude', 'address')
+        fields = ('url', 'id', 'identification_code', 'name', 'type', 'longitude', 'latitude', 'address')
         extra_kwargs = {
             'url': {'view_name': 'facilities-detail'},
             'type': {'view_name': "types-detail"}
         }
 
+    def to_representation(self, instance):
+        _dict = super().to_representation(instance)
+        _dict.update({
+            'type': FacilityTypeSerializer(instance=instance.type, context=self.context).data
+        })
+        return _dict
+
 
 class FacilityTypeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = FacilityType
-        fields = ('url', 'level', 'name', 'description')
+        fields = ('url', 'id', 'level', 'name', 'description')
         extra_kwargs = {
             'url': {'view_name': "types-detail"}
         }
@@ -25,7 +32,7 @@ class FacilityTypeSerializer(serializers.HyperlinkedModelSerializer):
 class MaritalStatusSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = MaritalStatus
-        fields = ('url', 'status', 'description', 'is_active', 'created_at')
+        fields = ('url', 'id', 'status', 'description', 'is_active', 'created_at')
         extra_kwargs = {
             'url': {'view_name': 'status-detail'}
         }
@@ -34,7 +41,7 @@ class MaritalStatusSerializer(serializers.HyperlinkedModelSerializer):
 class AppointMentTypeSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = AppointMentType
-        fields = ('url', 'code', 'type', 'description', 'created_at')
+        fields = ('url', 'id', 'code', 'type', 'description', 'created_at')
         extra_kwargs = {
             'url': {'view_name': 'appointment-types-detail'}
         }

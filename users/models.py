@@ -19,6 +19,7 @@ class Patient(models.Model):
         "core.HealthFacility", on_delete=models.CASCADE,
         null=True, blank=True, related_name='patients'
     )
+    national_id = models.PositiveIntegerField(unique=True, null=True, blank=True)
     county_of_residence = models.CharField(max_length=50, null=True, blank=True)
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
