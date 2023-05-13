@@ -26,9 +26,32 @@ class PatientNextOfKeenSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = PatientNextOfKeen
-        fields = ('url', 'full_name', 'address', 'phone_number', 'created_at', 'updated_at')
+        fields = ('url', 'id', 'full_name', 'address', 'phone_number', 'created_at', 'updated_at')
         extra_kwargs = {
             'url': {'view_name': 'next-of-keen-detail'},
+        }
+
+
+class TriadSerializer(serializers.HyperlinkedModelSerializer):
+    url = serializers.SerializerMethodField()
+
+    def get_url(self, instance):
+        return reverse(
+            viewname='triads-detail',
+            args=[instance.patient.id, instance.id],
+            request=self.context.get('request')
+        )
+
+    class Meta:
+        model = Triad
+        fields = (
+            'url', 'id',
+            'patient', 'weight', 'height',
+            'temperature', 'heart_rate',
+            'blood_pressure', 'created_at'
+        )
+        extra_kwargs = {
+            'patient': {'view_name': 'patients-detail', 'read_only': True},
         }
 
 
@@ -37,10 +60,11 @@ class PatientSerializer(serializers.HyperlinkedModelSerializer):
         view_name='facilities-detail', queryset=HealthFacility.objects.all()
     )
     next_of_keen = PatientNextOfKeenSerializer(many=True, read_only=True)
-    triads = nested_serializer.NestedHyperlinkedIdentityField(
-        many=True, view_name='triads-detail',
-        read_only=True, parent_lookup_kwargs={'patient_pk': 'patient__pk'}
-    )
+    # triads = nested_serializer.NestedHyperlinkedIdentityField(
+    #     many=True, view_name='triads-detail',
+    #     read_only=True, parent_lookup_kwargs={'patient_pk': 'patient__pk'}
+    # )
+    triads = TriadSerializer(many=True, read_only=True)
     appointments = AppointMentSerializer(many=True, read_only=True)
     prescriptions = PatientHivMedicationSerializer(many=True, read_only=True)
 
@@ -74,7 +98,7 @@ class PatientSerializer(serializers.HyperlinkedModelSerializer):
                     args=[instance.id],
                     request=self.context.get('request')
                 ),
-                'url_list': triad_list
+                'list': triad_list
             }
         }
         marital_status = _dict.pop("marital_status")
@@ -84,6 +108,30 @@ class PatientSerializer(serializers.HyperlinkedModelSerializer):
                 context=self.context
             ).data if instance.marital_status else None
         }
+        appointments = _dict.pop("appointments")
+        appointments_obj = {
+            'appointments': {
+                'count': len(appointments),
+                'url': reverse(
+                    viewname='appointments-list',
+                    request=self.context.get('request')
+                ),
+                'list': appointments
+            }
+        }
+        prescriptions = _dict.pop('prescriptions')
+        prescriptions_obj = {
+            'prescriptions': {
+                'count': len(prescriptions),
+                'url': reverse(
+                    viewname='hiv-prescription-list',
+                    request=self.context.get('request')
+                ),
+                'list': prescriptions
+            }
+        }
+        _dict.update(prescriptions_obj)
+        _dict.update(appointments_obj)
         _dict.update(marital_status_obj)
         _dict.update(triads_obj)
         _dict.update(nok_obj)
@@ -103,27 +151,4 @@ class PatientSerializer(serializers.HyperlinkedModelSerializer):
         extra_kwargs = {
             'url': {'view_name': 'patients-detail'},
             'marital_status': {'view_name': 'status-detail'}
-        }
-
-
-class TriadSerializer(serializers.HyperlinkedModelSerializer):
-    url = serializers.SerializerMethodField()
-
-    def get_url(self, instance):
-        return reverse(
-            viewname='patients:triad-detail',
-            args=[instance.patient.id, instance.id],
-            request=self.context.get('request')
-        )
-
-    class Meta:
-        model = Triad
-        fields = (
-            'url', 'id',
-            'patient', 'weight', 'height',
-            'temperature', 'heart_rate',
-            'blood_pressure', 'created_at'
-        )
-        extra_kwargs = {
-            'patient': {'view_name': 'patients:patient-detail', 'read_only': True},
         }
