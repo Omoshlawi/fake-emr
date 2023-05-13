@@ -1,5 +1,7 @@
 from rest_framework import serializers
+from rest_framework.reverse import reverse
 
+from core.serializers import AppointMentTypeSerializer
 from medication.models import AppointMent, HIVLabTest, ARTRegimen, PatientHivMedication
 
 
@@ -29,6 +31,25 @@ class AppointMentSerializer(serializers.HyperlinkedModelSerializer):
             'doctor': {'view_name': 'users-detail'},
         }
 
+    def to_representation(self, instance):
+        from users.serializers import UserSerializer
+        _dict = super().to_representation(instance)
+        tests = _dict.pop("tests")
+        _dict.update({
+            'type': AppointMentTypeSerializer(instance=instance.type, context=self.context).data,
+            'doctor': UserSerializer(instance=instance.doctor, context=self.context).data,
+            'tests':{
+                'count': len(tests),
+                'url': reverse(
+                    viewname='tests-list',
+                    request=self.context.get('request')
+                ),
+                'list':tests
+            }
+        })
+
+        return _dict
+
 
 class ARTRegimenSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -51,13 +72,13 @@ class PatientHivMedicationSerializer(serializers.HyperlinkedModelSerializer):
         }
 
     def to_representation(self, instance):
+        from users.serializers import UserSerializer
         _dict = super().to_representation(instance)
-        regimen = _dict.pop("regimen")
-        regimen_obje = {
+        _dict.update({
+            'doctor': UserSerializer(instance=instance.doctor, context=self.context).data,
             'regimen': ARTRegimenSerializer(
                 instance=instance.regimen,
                 context=self.context
             ).data if instance.regimen else None
-        }
-        _dict.update(regimen_obje)
+        })
         return _dict

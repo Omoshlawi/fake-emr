@@ -9,9 +9,14 @@ from users.models import PatientNextOfKeen, Patient, Triad
 
 
 class UserSerializer(serializers.ModelSerializer):
+    doctor_number = serializers.SerializerMethodField()
+
+    def get_doctor_number(self, instance):
+        return instance.id
+
     class Meta:
         model = User
-        fields = ('id', 'first_name', 'last_name', 'email')
+        fields = ('doctor_number', 'first_name', 'last_name', 'email')
 
 
 class PatientNextOfKeenSerializer(serializers.HyperlinkedModelSerializer):
@@ -26,7 +31,7 @@ class PatientNextOfKeenSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = PatientNextOfKeen
-        fields = ('url', 'id', 'full_name', 'address', 'phone_number', 'created_at', 'updated_at')
+        fields = ('url', 'id', 'full_name', 'address', 'phone_number', 'relationship', 'created_at', 'updated_at')
         extra_kwargs = {
             'url': {'view_name': 'next-of-keen-detail'},
         }
