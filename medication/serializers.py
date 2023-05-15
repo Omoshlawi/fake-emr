@@ -1,4 +1,6 @@
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
+from rest_framework.generics import get_object_or_404
 from rest_framework.reverse import reverse
 
 from core.serializers import AppointMentTypeSerializer
@@ -17,19 +19,47 @@ class HIVLabTestSerializer(serializers.HyperlinkedModelSerializer):
 
 class AppointMentSerializer(serializers.HyperlinkedModelSerializer):
     tests = HIVLabTestSerializer(many=True, read_only=True)
+    patient_ccc_number = serializers.CharField(max_length=20, write_only=True)
+    previous_appointment = serializers.IntegerField(write_only=True)
 
     class Meta:
         model = AppointMent
         fields = (
-            'url', 'id', 'patient', 'type', 'doctor', 'tests', 'next_appointment_date',
+            'url', 'id',
+            'patient_ccc_number', 'previous_appointment',
+            'patient', 'type', 'doctor', 'tests', 'next_appointment_date',
             'created_at', 'updated_at'
         )
         extra_kwargs = {
             'url': {'view_name': 'appointments-detail'},
-            'patient': {'view_name': 'patients-detail'},
-            'type': {'view_name': 'appointment-types-detail'},
-            'doctor': {'view_name': 'users-detail'},
+            'patient': {'view_name': 'patients-detail', 'read_only': True},
+            'type': {'view_name': 'appointment-types-detail', 'read_only': True},
+            'doctor': {'view_name': 'users-detail', 'read_only': True},
         }
+
+    def validate_patient_ccc_number(self, patient_ccc_number):
+        from users.models import Patient
+        try:
+            Patient.objects.get(patient_number=patient_ccc_number)
+        except Patient.DoesNotExist:
+            raise ValidationError("No patient with such cc number")
+
+    def validate_previous_appointment(self, previous_appointment):
+        try:
+            AppointMent.objects.get(id=previous_appointment)
+        except AppointMent.DoesNotExist:
+            raise ValidationError("No appointment with search Id")
+
+    def create(self, validated_data):
+        from users.models import Patient
+        patient = get_object_or_404(Patient, patient_number=validated_data.pop("patient_ccc_number"))
+        prev = get_object_or_404(AppointMent, id=validated_data.pop("previous_appointment"))
+        validated_data.update({
+            'patient': patient,
+            'type': prev.type,
+            'doctor': prev.doctor,
+        })
+        super().create(validated_data)
 
     def to_representation(self, instance):
         from users.serializers import UserSerializer
@@ -38,13 +68,13 @@ class AppointMentSerializer(serializers.HyperlinkedModelSerializer):
         _dict.update({
             'type': AppointMentTypeSerializer(instance=instance.type, context=self.context).data,
             'doctor': UserSerializer(instance=instance.doctor, context=self.context).data,
-            'tests':{
+            'tests': {
                 'count': len(tests),
                 'url': reverse(
                     viewname='tests-list',
                     request=self.context.get('request')
                 ),
-                'list':tests
+                'list': tests
             }
         })
 
