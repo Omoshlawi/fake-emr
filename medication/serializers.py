@@ -19,14 +19,15 @@ class HIVLabTestSerializer(serializers.HyperlinkedModelSerializer):
 
 class AppointMentSerializer(serializers.HyperlinkedModelSerializer):
     tests = HIVLabTestSerializer(many=True, read_only=True)
-    patient_ccc_number = serializers.CharField(max_length=20, write_only=True)
+    # patient_ccc_number = serializers.CharField(max_length=20, write_only=True)
     previous_appointment = serializers.IntegerField(write_only=True)
 
     class Meta:
         model = AppointMent
         fields = (
             'url', 'id',
-            'patient_ccc_number', 'previous_appointment',
+            # 'patient_ccc_number',
+            'previous_appointment',
             'patient', 'type', 'doctor', 'tests', 'next_appointment_date',
             'created_at', 'updated_at'
         )
@@ -37,29 +38,31 @@ class AppointMentSerializer(serializers.HyperlinkedModelSerializer):
             'doctor': {'view_name': 'users-detail', 'read_only': True},
         }
 
-    def validate_patient_ccc_number(self, patient_ccc_number):
-        from users.models import Patient
-        try:
-            Patient.objects.get(patient_number=patient_ccc_number)
-        except Patient.DoesNotExist:
-            raise ValidationError("No patient with such cc number")
+    # def validate_patient_ccc_number(self, patient_ccc_number):
+    #     from users.models import Patient
+    #     try:
+    #         Patient.objects.get(patient_number=patient_ccc_number)
+    #     except Patient.DoesNotExist:
+    #         raise ValidationError("No patient with such cc number")
 
     def validate_previous_appointment(self, previous_appointment):
         try:
             AppointMent.objects.get(id=previous_appointment)
         except AppointMent.DoesNotExist:
             raise ValidationError("No appointment with search Id")
+        return previous_appointment
 
     def create(self, validated_data):
-        from users.models import Patient
-        patient = get_object_or_404(Patient, patient_number=validated_data.pop("patient_ccc_number"))
+        print(validated_data)
+        # from users.models import Patient
+        # patient = get_object_or_404(Patient, patient_number=validated_data.pop("patient_ccc_number"))
         prev = get_object_or_404(AppointMent, id=validated_data.pop("previous_appointment"))
         validated_data.update({
-            'patient': patient,
+            'patient': prev.patient,
             'type': prev.type,
             'doctor': prev.doctor,
         })
-        super().create(validated_data)
+        return super().create(validated_data)
 
     def to_representation(self, instance):
         from users.serializers import UserSerializer
