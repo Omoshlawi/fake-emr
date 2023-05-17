@@ -5,12 +5,13 @@ from rest_framework.reverse import reverse
 
 from core.serializers import AppointMentTypeSerializer
 from medication.models import AppointMent, HIVLabTest, ARTRegimen, PatientHivMedication
+from users.models import Triad
 
 
 class HIVLabTestSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = HIVLabTest
-        fields = ('url', 'id', 'appointment', 'cd4_count', 'viral_load')
+        fields = ('url', 'id', 'appointment', 'cd4_count', 'viral_load', 'created_at')
         extra_kwargs = {
             'url': {'view_name': 'tests-detail'},
             'appointment': {'view_name': 'appointments-detail'},
@@ -53,9 +54,6 @@ class AppointMentSerializer(serializers.HyperlinkedModelSerializer):
         return previous_appointment
 
     def create(self, validated_data):
-        print(validated_data)
-        # from users.models import Patient
-        # patient = get_object_or_404(Patient, patient_number=validated_data.pop("patient_ccc_number"))
         prev = get_object_or_404(AppointMent, id=validated_data.pop("previous_appointment"))
         validated_data.update({
             'patient': prev.patient,
@@ -115,3 +113,18 @@ class PatientHivMedicationSerializer(serializers.HyperlinkedModelSerializer):
             ).data if instance.regimen else None
         })
         return _dict
+
+
+class PatientTriadSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Triad
+        fields = (
+            'url', 'id',
+            'patient', 'weight', 'height',
+            'temperature', 'heart_rate',
+            'blood_pressure', 'created_at'
+        )
+        extra_kwargs = {
+            'url': {'view_name': 'patients-triads-detail', 'read_only': True},
+            'patient': {'view_name': 'patients-detail', 'read_only': True},
+        }

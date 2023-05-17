@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.utils import timezone
 
 # Create your models here.
 
@@ -22,6 +22,7 @@ class HIVLabTest(models.Model):
     appointment = models.ForeignKey(AppointMent, related_name='tests', on_delete=models.CASCADE)
     cd4_count = models.PositiveIntegerField()
     viral_load = models.PositiveIntegerField()
+    created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return f"{self.appointment.patient} lab HIV test"

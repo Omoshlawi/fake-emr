@@ -1,6 +1,6 @@
 from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
-
+from django.utils import timezone
 GENDER_CHOICES = (
     ('male', 'male'),
     ('female', 'female'),
@@ -45,7 +45,7 @@ class Triad(models.Model):
     temperature = models.PositiveIntegerField(null=True, blank=True)
     heart_rate = models.PositiveIntegerField(null=True, blank=True)
     blood_pressure = models.DecimalField(decimal_places=2, max_digits=12, blank=True, null=True)
-    created_at = models.DateTimeField(auto_now=True, blank=True, null=True)
+    created_at = models.DateTimeField(default=timezone.now, blank=True, null=True)
 
     class Meta:
         ordering = ['-created_at']
