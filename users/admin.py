@@ -29,4 +29,11 @@ class PatientAdmin(admin.ModelAdmin):
 
 @admin.register(Triad)
 class TriadAdmin(admin.ModelAdmin):
-    list_display = ('patient', 'weight', 'height', 'blood_pressure', 'created_at')
+    list_display = (
+        'patient', 'weight', 'height', 'blood_pressure',
+        'temperature', 'heart_rate', 'created_at'
+    )
+    list_editable = (
+        'weight', 'height', 'blood_pressure',
+        'temperature', 'heart_rate'
+    )

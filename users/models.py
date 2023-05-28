@@ -1,6 +1,8 @@
 from django.db import models
+from django.db.models import Avg, Max, Min, Count, StdDev
 from phonenumber_field.modelfields import PhoneNumberField
 from django.utils import timezone
+
 GENDER_CHOICES = (
     ('male', 'male'),
     ('female', 'female'),
@@ -30,6 +32,16 @@ class Patient(models.Model):
     phone_number = PhoneNumberField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now=True)
     updated_at = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def age(self):
+        if self.date_of_birth:
+            today = timezone.now().today()
+            age = today.year - self.date_of_birth.year
+            # if today < date(today.year, self.date_of_birth.month, self.date_of_birth.day):
+            #     age -= 1
+            return age
+        return None
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
@@ -62,4 +74,3 @@ class PatientNextOfKeen(models.Model):
 
     class Meta:
         ordering = ['-created_at']
-
