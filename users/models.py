@@ -1,5 +1,7 @@
 from django.db import models
 from django.db.models import Avg, Max, Min, Count, StdDev
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from phonenumber_field.modelfields import PhoneNumberField
 from django.utils import timezone
 
@@ -74,3 +76,8 @@ class PatientNextOfKeen(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+
+
+@receiver(post_save, sender=Patient)
+def notify_subscribers(sender, instance, created, **kwargs):
+    """Check for patient point to see if he/she is eligible for moving to next program"""
